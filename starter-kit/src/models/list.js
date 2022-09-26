@@ -12,6 +12,9 @@ const listSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Cards",
+        // default: [null], 
+        // required: false,
+        // index: true
       },
     ],
   },

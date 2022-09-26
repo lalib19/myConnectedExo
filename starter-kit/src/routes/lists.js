@@ -3,21 +3,42 @@ let List = require("../models/list");
 
 router.route("/").get((req, res) => {
   List.find()
-    .populate("cards")
+    // .populate("cards")
     .then((lists) => res.json(lists))
+    .catch((err) => res.status(400).json("Error" + err));
+});
+
+//Story 6
+router.route("/onelist/:id").get((req, res) => {
+  List.findOneAndUpdate(
+    { cards: { $in: [req.params.id] } },
+    { $pull: { cards: req.params.id } }
+  )
+    .then(() => {
+      
+      // add card to targeted list
+      List.findByIdAndUpdate(req.body.listId, {
+        $push: {
+          cards: req.params.id,
+        },
+      })
+        .then((apiRes) => "list updated" + apiRes)
+        .catch((apiErr) => apiErr);
+    })
     .catch((err) => res.status(400).json("Error" + err));
 });
 
 router.route("/:id").get((req, res) => {
   List.findById(req.params.id)
-    .populate("cards")
+    // .populate("cards")
     .then((list) => res.json(list))
     .catch((err) => res.status(400).json("Error: " + err));
 });
 
 router.route("/create").post((req, res) => {
   const name = req.body.name;
-  const newList = new List({ name });
+  const cards = req.body.cards;
+  const newList = new List({ name, cards });
 
   newList
     .save()
